@@ -2,13 +2,24 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class App {
     
-    static String VALID_CHARS = "abcdefghijklmnopqrstuvwxyzæøå' -";
+    static String VALID_CHARS = "abcdefghijklmnopqrstuvwxyzæøå ";
     public static void main(String[] args) throws Exception {
-        String seedName = "Benthe Thomsen";
-		String goalName = "Sif Høg";
-        String mutatedGoal = mutate(goalName);
-		int numberOfMutations = 500;
-		System.out.println("Similarity between '" + goalName + "' and '" + mutatedGoal + "' = " + getFitness(goalName, mutatedGoal));
+        String seedName = "Sif Høg";
+		String goalName = "Eleanor Scott";
+        String [] mutations = new String[500];
+		
+        int iteration = 0;
+        while(getFitness(seedName, goalName) < 1) {
+            int bestFit = 0;
+            for(int i = 0; i < mutations.length; i++) {
+                mutations[i] = mutate(mutate(seedName));
+                bestFit = (getFitness(mutations[i], goalName) > getFitness(mutations[bestFit], goalName)) ? i : bestFit;
+            }
+            System.out.println(iteration + " " + seedName + "; " + getFitness(seedName, goalName));
+            seedName = mutations[bestFit];
+            iteration++;
+        }
+        System.out.println(iteration + " " + seedName + "; " + getFitness(seedName, goalName));
     }
     static float getFitness(String seedInput, String goalInput) {
 		float lengthFitness;
@@ -38,7 +49,7 @@ public class App {
         permutationFitness = 1;
         for(int c = 0; c < seed.length(); c++) {
             float seedPosition = (float) c / seed.length();
-            if(goal.indexOf(seed.charAt(c), (int) (seedPosition*0.9*goal.length())) >= 0) {
+            if(goal.indexOf(seed.charAt(c), (int) (seedPosition*goal.length())) >= 0) {
                 float goalPosition = (float) goal.indexOf(seed.charAt(c), (int) (seedPosition*0.9*goal.length())) / goal.length();
                 float distance = seedPosition - goalPosition;
                 distance = (distance > 0) ? distance : -distance;
